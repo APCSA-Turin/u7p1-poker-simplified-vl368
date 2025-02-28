@@ -16,19 +16,28 @@ public class Deck{
     }
 
     public  void initializeDeck(){ //hint.. use the utility class
-        
+        String[] suits = Utility.suits();
+        String[] ranks = Utility.ranks();
+        for (int i = 0; i < ranks.length; i++) {
+            for (int k = 0; k < suits.length; k++) {
+                cards.add(new Card(ranks[i], suits[k]));
+            }
+        }
     }
 
     public  void shuffleDeck(){ //You can use the Collections library or another method. You do not have to create your own shuffle algorithm
-        
+        Collections.shuffle(cards);
     }
 
     public  Card drawCard(){
-       return new Card("","");
+        if (isEmpty()) {
+            return cards.remove(0);
+        }
+        return null;
     }
 
     public  boolean isEmpty(){
-        return cards.isEmpty();
+        return cards.length > 0;
     }
 
    
