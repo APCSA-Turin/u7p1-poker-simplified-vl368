@@ -12,6 +12,9 @@ public class Card{
 
     public String getRank(){return rank;}
     public String getSuit(){return suit;}
+
+    public int getRankValue(){return Utility.getRankValue(rank);}
+    public int getSuitValue(){return Utility.getSuitValue(suit);}
     
     @Override
     public String toString(){

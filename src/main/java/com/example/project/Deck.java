@@ -16,8 +16,8 @@ public class Deck{
     }
 
     public  void initializeDeck(){ //hint.. use the utility class
-        String[] suits = Utility.suits();
-        String[] ranks = Utility.ranks();
+        String[] suits = Utility.getSuits();
+        String[] ranks = Utility.getRanks();
         for (int i = 0; i < ranks.length; i++) {
             for (int k = 0; k < suits.length; k++) {
                 cards.add(new Card(ranks[i], suits[k]));
@@ -37,7 +37,7 @@ public class Deck{
     }
 
     public  boolean isEmpty(){
-        return cards.length > 0;
+        return cards.size() > 0;
     }
 
    

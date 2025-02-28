@@ -40,6 +40,16 @@ public class Utility{
         return -1;
     }
 
+    public static int getSuitValue(String suit) {
+        switch(suit) {
+            case "♠": return 0;
+            case "♥": return 1;
+            case "♣": return 2;
+            case "♦": return 4;
+        }
+        return -1;
+    }
+
     public static int getHandRanking(String result){
         switch(result){
             case "Royal Flush": return 11;
@@ -56,6 +66,4 @@ public class Utility{
         }
         return -1;
     }
-
-
 }
