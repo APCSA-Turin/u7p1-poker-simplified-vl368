@@ -2,6 +2,7 @@ package com.example.project;
 import java.util.ArrayList;
 
 public class Utility{
+    // instance variables
     private static String[] hands = {
         "Royal Flush",
         "Straight Flush",
@@ -18,6 +19,7 @@ public class Utility{
     private static String[] suits  = {"♠","♥","♣", "♦"};
     private static String[] ranks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
 
+    // getter methods
     public static String[] getRanks(){return ranks;}
     public static String[] getSuits(){return suits;}
 
@@ -40,12 +42,14 @@ public class Utility{
         return -1;
     }
 
+    // assigns an integer to the different suits 
+    // based on index in suits array
     public static int getSuitValue(String suit) {
         switch(suit) {
             case "♠": return 0;
             case "♥": return 1;
             case "♣": return 2;
-            case "♦": return 4;
+            case "♦": return 3;
         }
         return -1;
     }
