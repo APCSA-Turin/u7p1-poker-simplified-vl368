@@ -98,8 +98,16 @@ public class Player{
 
     // sorts allCards
     public void sortAllCards(){
-        // uses collections sort with a comparator for the card class (class below)
-        Collections.sort(allCards, new CardComparator());
+        CardComparator c = new CardComparator();
+        for (int i = 0; i < allCards.size(); i++) {
+            Card card = allCards.get(i);
+            int k = i;
+            while (k > 0 && c.compare(allCards.get(k-1),card) > 0) {
+                allCards.set(k, allCards.get(k-1));
+                k--;
+            }
+            allCards.set(k, card);
+        }
     } 
 
     // returns list with rank frequency in order of ranks in ranks arraylist
