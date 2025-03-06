@@ -1,7 +1,5 @@
 package com.example.project;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 
 public class Player{
@@ -31,75 +29,95 @@ public class Player{
         // initalizes variable(s) + object(s)
         String bestHand = "Nothing";
         CardComparator compare = new CardComparator();
+        ArrayListHelper arrList = new ArrayListHelper();
         // initalize + sort allCards
-        allCards = new ArrayList<Card>();
-        for (Card c : hand) {
-            allCards.add(c);
-        }
-        for (Card c : communityCards) {
-            allCards.add(c);
-        }
+        allCards = new ArrayList<>();
+        allCards.addAll(hand);
+        allCards.addAll(communityCards);
         sortAllCards();
         
+        // uses ArrayListHelper class; code at the bottom of this class
         // determines if high card is present
-        if (!communityCards.contains(allCards.getLast())) {
+        if (!arrList.containsCard(allCards.get(allCards.size()-1), communityCards)) {
             bestHand = "High Card";
         }
-        if (findRankingFrequency().contains(2)) {
+        // determines 1 pair
+        if (arrList.containsInt(2,findRankingFrequency())) {
             bestHand = "A Pair";
         }
-        ArrayList<Integer> rankFreq = findRankingFrequency();
-        rankFreq.remove(2);
-        if (rankFreq.contains(2)) {
+        // determines 2 pair
+        if (arrList.frequency(2,findRankingFrequency()) >= 2) {
             bestHand = "Two Pair";
         }
-        if (findRankingFrequency().contains(3)) {
+        // determines 3 of a kind
+        if (arrList.containsInt(3,findRankingFrequency())) {
             bestHand = "Three of a Kind";
         }
-        // find straight
-        int maxStreak = 0;
-        int consecutive = 0;
-        int startOfStreak = 0;
-        int previousRank = allCards.get(0).getRankValue();
-        for (int i = 0; i < allCards.size(); i++) {
-            if (allCards.get(i).getRankValue() == previousRank) {
-                consecutive++;
-            }
-            else {
-                if (consecutive > maxStreak) {
-                    maxStreak = consecutive;
-                }
-                consecutive = 1;
-                startOfStreak = i;
-            }
-            previousRank = allCards.get(i).getRankValue();
-        }
-        boolean straight = false;
-        if (maxStreak >= 5) {
+        // determines straight
+        boolean straight = arrList.mostInOrderCards(allCards);
+        if (straight) {
             bestHand = "Straight";
-            straight = true;
         }
-        if (Collections.max(findSuitFrequency()) >= 5) {
+        // determines flush
+        boolean flush = false;
+        int flushSuit = 0;
+        if (arrList.maxValue(findSuitFrequency()) >= 5) {
             bestHand = "Flush";
+            for (int i = 0; i < 4; i++) {
+                if(findSuitFrequency().get(i) == arrList.maxValue(findSuitFrequency())) {
+                    flushSuit = i;
+                }
+            }
+            flush = true;
         }
-        ArrayList<Integer> fullHouse = new ArrayList<>();
-        fullHouse.add(2);
-        fullHouse.add(3);
-        if (allCards.containsAll(fullHouse)) {
+        if (arrList.containsInt(3,findRankingFrequency()) && arrList.containsInt(2,findRankingFrequency())) {
             bestHand = "Full House";
         }
-        if (findRankingFrequency().contains(4)) {
+        if (arrList.containsInt(4,findRankingFrequency())) {
             bestHand = "Four of a Kind";
         }
         // find straight flush
-        
+        if (straight) {
+            int sameFlush = 1;
+            for (int i = 1; i < allCards.size(); i++) {
+                if (compare.compareSuit(allCards.get(i-1), allCards.get(i))) {
+                    sameFlush++;
+                }
+                else {
+                    break;
+                }
+            }
+            if (sameFlush == 5) {
+                bestHand = "Straight Flush";
+            }
+        }
+        int[] royalFlush = {10,11,12,13,14};
+        if (straight && flush) {
+            for (int i = 0; i < royalFlush.length; i++) {
+                for (Card card : allCards) {
+                    if (card.getRankValue() == royalFlush[i] && card.getSuitValue() == flushSuit) {
+                        royalFlush[i] = 0;
+                    }
+                }
+            }
+            boolean isRoyalFlush = true;
+            for (int i = 0; i < royalFlush.length; i++) {
+                if (!(royalFlush[i] == 0)) {
+                    isRoyalFlush = false;
+                }
+            }
+            if (isRoyalFlush) {
+                bestHand = "Royal Flush";
+            }
+        }
         return bestHand;
     }
 
     // sorts allCards
     public void sortAllCards(){
+        // cardcomparator class in this folder
         CardComparator c = new CardComparator();
-        for (int i = 0; i < allCards.size(); i++) {
+        for (int i = 1; i < allCards.size(); i++) {
             Card card = allCards.get(i);
             int k = i;
             while (k > 0 && c.compare(allCards.get(k-1),card) > 0) {
@@ -109,15 +127,27 @@ public class Player{
             allCards.set(k, card);
         }
     } 
+    
+    public Card getHandHighest() {
+        Card highest = hand.get(0);
+        CardComparator c = new CardComparator();
+        if (c.compare(hand.get(1), highest) > 0) {
+            highest = hand.get(1);
+        }
+        return highest;
+    }
 
     // returns list with rank frequency in order of ranks in ranks arraylist
     public ArrayList<Integer> findRankingFrequency(){
         // initalizes rankFreq with size of 13 with 0s
-        ArrayList<Integer> rankFreq = new ArrayList<>(Collections.nCopies(13,0));
+        ArrayList<Integer> rankFreq = new ArrayList<>();
+        for (int i = 0; i < 13; i++) {
+            rankFreq.add(0);
+        }
         for (Card card : allCards) {
             // uses rankValue for index and adds one with getter method
             int rankValue = card.getRankValue() - 2;
-            rankFreq.set(rankValue,rankFreq.get(rankValue)+1);
+            rankFreq.set(rankValue, rankFreq.get(rankValue)+1);
         }
         return rankFreq; 
     }
@@ -125,7 +155,10 @@ public class Player{
     // returns list with suit frequency in order of suits in suits arraylist
     public ArrayList<Integer> findSuitFrequency(){
         // initalizes suitFreq with size of 4 with 0s
-        ArrayList<Integer> suitFreq = new ArrayList<>(Collections.nCopies(4,0));
+        ArrayList<Integer> suitFreq = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            suitFreq.add(0);
+        }
         for (Card card : allCards) {
             // uses suitValue for index and adds one with getter method
             int suitValue = card.getSuitValue();
@@ -140,27 +173,60 @@ public class Player{
         return hand.toString();
     }
 
-    // comparator class
-    class CardComparator implements Comparator<Card> {
-        @Override
-        public int compare(Card o1, Card o2) {
-            // compares using rank value
-            if (o1.getRankValue() > o2.getRankValue()) {
-                return 1;
+
+    class ArrayListHelper {
+        public boolean containsInt(int value, ArrayList<Integer> arrList) {
+            for (Integer element : arrList) {
+                if (element == value) {
+                    return true;
+                }
             }
-            // if same rank value
-            else if (o1.getRankValue() == o2.getRankValue()) {
-                // compares using suit value
-                if (o1.getSuitValue() > o2.getSuitValue()) {
-                    return 1;
+            return false;
+        }
+    
+        public boolean containsCard(Card card, ArrayList<Card> arrList) {
+            for (Card element : arrList) {
+                if (card.equals(element)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    
+        public int maxValue(ArrayList<Integer> arrList) {
+            int max = arrList.get(0);
+            for (int element : arrList) {
+                if (element > max) {
+                    max = element;
+                }
+            }
+            return max;
+        }
+    
+        public int frequency(int value, ArrayList<Integer> arrList) {
+            int count = 0;
+            for (Integer element : arrList) {
+                if (element == value) {
+                    count++;
+                }
+            }
+            return count;
+        }
+    
+        public boolean mostInOrderCards(ArrayList<Card> arrList) {
+            boolean consecutive = true;
+            int previousRank = arrList.get(0).getRankValue();
+            for (int i = 1; i < arrList.size(); i++) {
+                if (arrList.get(i).getRankValue() == previousRank + 1) {
+                    previousRank = arrList.get(i).getRankValue();
                 }
                 else {
-                    return -1;
+                    consecutive = false;
                 }
             }
-            else {
-                return -1;
-            }
+            return consecutive;
         }
     }
+    
+
 }

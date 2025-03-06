@@ -70,4 +70,28 @@ public class Utility{
         }
         return -1;
     }
+
+    public static int compareHandRanking(int o1, int o2) {
+        if (o1 > o2) {
+            return 1;
+        }
+        else if (o1 < o2) {
+            return -1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    public static String winToString(int integer) {
+        if (integer == 1) {
+            return "Player 1 wins!";
+        }
+        else if (integer == -1) {
+            return "Player 2 wins!";
+        }
+        else {
+            return "Tie!";
+        }
+    }
 }
