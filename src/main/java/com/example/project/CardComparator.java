@@ -31,7 +31,10 @@ package com.example.project;
             return o1.getSuitValue() == o2.getSuitValue();
         }
 
+        // compares the ranks of the two cards
+        // o1 == o2 ranks is possible
         public int compareRank(Card o1, Card o2) {
+            // compares rank values
             if (o1.getRankValue() > o2.getRankValue()) {
                 return 1;
             }

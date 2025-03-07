@@ -1,5 +1,4 @@
 package com.example.project;
-import java.util.ArrayList;
 
 public class Utility{
     // instance variables
@@ -71,7 +70,11 @@ public class Utility{
         return -1;
     }
 
+    // method for comparing Hand ranking
+    // returns int 
     public static int compareHandRanking(int o1, int o2) {
+        // returns positive, negative, or zero int 
+        // according to which is bigger
         if (o1 > o2) {
             return 1;
         }
@@ -83,6 +86,8 @@ public class Utility{
         }
     }
 
+    // turns a positive or negative or zero integer to 
+    // a returned string to be returned to game class method
     public static String winToString(int integer) {
         if (integer == 1) {
             return "Player 1 wins!";

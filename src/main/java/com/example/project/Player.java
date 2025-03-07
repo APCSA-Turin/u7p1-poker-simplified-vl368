@@ -28,7 +28,7 @@ public class Player{
     public String playHand(ArrayList<Card> communityCards){      
         // initalizes variable(s) + object(s)
         String bestHand = "Nothing";
-        CardComparator compare = new CardComparator();
+        // arraylisthelper class at the bottom of this class
         ArrayListHelper arrList = new ArrayListHelper();
         // initalize + sort allCards
         allCards = new ArrayList<>();
@@ -54,62 +54,37 @@ public class Player{
             bestHand = "Three of a Kind";
         }
         // determines straight
-        boolean straight = arrList.mostInOrderCards(allCards);
+        boolean straight = arrList.isStraight(allCards);
         if (straight) {
             bestHand = "Straight";
         }
         // determines flush
-        boolean flush = false;
-        int flushSuit = 0;
-        if (arrList.maxValue(findSuitFrequency()) >= 5) {
+        // if there is a suit frequency element == 5 there is a flush
+        boolean flush = arrList.maxValue(findSuitFrequency()) == 5;
+        if (flush) {
             bestHand = "Flush";
-            for (int i = 0; i < 4; i++) {
-                if(findSuitFrequency().get(i) == arrList.maxValue(findSuitFrequency())) {
-                    flushSuit = i;
-                }
-            }
-            flush = true;
         }
+        // determines full house 
+        // if there is three of a kind + a pair in ranking freq there is a full house
         if (arrList.containsInt(3,findRankingFrequency()) && arrList.containsInt(2,findRankingFrequency())) {
             bestHand = "Full House";
         }
+        // determine four of a kind
         if (arrList.containsInt(4,findRankingFrequency())) {
             bestHand = "Four of a Kind";
         }
-        // find straight flush
-        if (straight) {
-            int sameFlush = 1;
-            for (int i = 1; i < allCards.size(); i++) {
-                if (compare.compareSuit(allCards.get(i-1), allCards.get(i))) {
-                    sameFlush++;
-                }
-                else {
-                    break;
-                }
-            }
-            if (sameFlush == 5) {
-                bestHand = "Straight Flush";
-            }
-        }
-        int[] royalFlush = {10,11,12,13,14};
+        // find straight or royal flush
         if (straight && flush) {
-            for (int i = 0; i < royalFlush.length; i++) {
-                for (Card card : allCards) {
-                    if (card.getRankValue() == royalFlush[i] && card.getSuitValue() == flushSuit) {
-                        royalFlush[i] = 0;
-                    }
-                }
-            }
-            boolean isRoyalFlush = true;
-            for (int i = 0; i < royalFlush.length; i++) {
-                if (!(royalFlush[i] == 0)) {
-                    isRoyalFlush = false;
-                }
-            }
-            if (isRoyalFlush) {
+            // condition already guarentees straight flush
+            bestHand = "Straight Flush";
+            // determines straight flush,
+            // last (highest) card should be the ace
+            // first (lowest) card should be the 10
+            if (allCards.get(0).getRankValue() == 10 && allCards.get(allCards.size()-1).getRankValue() == 14) {
                 bestHand = "Royal Flush";
             }
         }
+        // returns string
         return bestHand;
     }
 
@@ -118,8 +93,11 @@ public class Player{
         // cardcomparator class in this folder
         CardComparator c = new CardComparator();
         for (int i = 1; i < allCards.size(); i++) {
+            // initalizes for insertion sort algorithm
             Card card = allCards.get(i);
+            // k represents the index the card should go
             int k = i;
+            // stops when k > 0 or next card isn't bigger than our current card
             while (k > 0 && c.compare(allCards.get(k-1),card) > 0) {
                 allCards.set(k, allCards.get(k-1));
                 k--;
@@ -128,12 +106,16 @@ public class Player{
         }
     } 
     
+    // method for highest card in hand
     public Card getHandHighest() {
         Card highest = hand.get(0);
         CardComparator c = new CardComparator();
+        // only one other card, if larger by rank (maybe and suit) 
+        // highest gets replaced
         if (c.compare(hand.get(1), highest) > 0) {
             highest = hand.get(1);
         }
+        // returns the card
         return highest;
     }
 
@@ -173,29 +155,38 @@ public class Player{
         return hand.toString();
     }
 
-
+    // arraylist helper class
     class ArrayListHelper {
+        // checks if a value is found in the array list
         public boolean containsInt(int value, ArrayList<Integer> arrList) {
+            // enhanced for loop to check for target value
             for (Integer element : arrList) {
                 if (element == value) {
+                    // early return
                     return true;
                 }
             }
             return false;
         }
     
+        // checks if a card object exists in an array list
         public boolean containsCard(Card card, ArrayList<Card> arrList) {
+            // enhanced for loop
             for (Card element : arrList) {
                 if (card.equals(element)) {
+                    // early return
                     return true;
                 }
             }
             return false;
         }
     
+        // finds the max integer in an array list
         public int maxValue(ArrayList<Integer> arrList) {
             int max = arrList.get(0);
+            // enhanced for loop
             for (int element : arrList) {
+                // replaces max variable if element is bigger
                 if (element > max) {
                     max = element;
                 }
@@ -203,28 +194,34 @@ public class Player{
             return max;
         }
     
+        // returns the frequency of an integer in an arraylist
         public int frequency(int value, ArrayList<Integer> arrList) {
             int count = 0;
+            // enhanced for loop
             for (Integer element : arrList) {
+                // counts every mached value
                 if (element == value) {
                     count++;
                 }
             }
             return count;
         }
-    
-        public boolean mostInOrderCards(ArrayList<Card> arrList) {
-            boolean consecutive = true;
+        
+        // returns if there is a straight
+        public boolean isStraight(ArrayList<Card> arrList) {
+            boolean straight = true;
             int previousRank = arrList.get(0).getRankValue();
             for (int i = 1; i < arrList.size(); i++) {
                 if (arrList.get(i).getRankValue() == previousRank + 1) {
                     previousRank = arrList.get(i).getRankValue();
                 }
                 else {
-                    consecutive = false;
+                    // if any rank is not in the next order
+                    // boolean turns false and cannot be true again
+                    straight = false;
                 }
             }
-            return consecutive;
+            return straight;
         }
     }
     
